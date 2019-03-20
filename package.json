@@ -1,0 +1,21 @@
+{
+  "name": "vshootapplication",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Candice Wright",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^3.0.2",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "firebase-admin": "^6.4.0",
+    "mysql": "^2.16.0",
+    "nodemailer": "^5.1.1",
+    "socket.io": "^2.1.1",
+    "twilio": "^3.23.1"
+  }
+}
