@@ -1115,7 +1115,7 @@ socketChannel.sockets.on('connection', function(socket){
                       if (pref == 1){
                         //tell requestor they cannot shoot with this person because the other person does'nt have them as a friend
                         console.log("receiver doesn't have them as a friend and they only allow friends")
-                        socket.emit("OnlyVotographriends", "Your request could not be completed because " + receiver + " only accepts VShoot requests from their votographriends and they have not yet added you. Contact them to add you, then you'll be good!")
+                        socket.emit("OnlyVotographriends", "Your request could not be completed because " + receiver + " only accepts VShoot requests from their vriends and they have not added you yet. Contact them to add you, then you'll be good!")
                       }
                       else {
  
