@@ -1414,6 +1414,10 @@ function Vshooter(socket, username, vshoot, role) { //only users that are curren
     var array = this.socket.eventNames()
     console.log("num events on socket is " + array.length)
     console.log(this.socket.eventNames())
+    console.log("number of takephoto listeners added")
+    console.log(this.socket.listenerCount('takephoto'))
+    console.log("number of cancelRequest listeners added")
+    console.log(this.socket.listenerCount('cancelRequest'))
 
     
 
