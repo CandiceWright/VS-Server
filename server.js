@@ -1411,6 +1411,8 @@ function Vshooter(socket, username, vshoot, role) { //only users that are curren
     })
 
     console.log("printing the events on this socket for " + this.username + "in vshooter constructor");
+    var array = this.socket.eventNames()
+    console.log("num events on socket is " + array.length)
     console.log(this.socket.eventNames())
 
     
