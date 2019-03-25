@@ -1027,6 +1027,9 @@ socketChannel.sockets.on('connection', function(socket){
       var newUser = new User(username, socket);
       allUsers.push(newUser);
     }
+
+    console.log("printing listen count for join")
+    console.log(socket.listenerCount('join'))
     
   });
 
