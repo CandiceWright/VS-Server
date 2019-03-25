@@ -1264,6 +1264,7 @@ socketChannel.sockets.on('connection', function(socket){
   })
 
   socket.on("endVShoot", function(data){
+
     //need to know the user that needs to be notified that their vshoot is ending 
     vsId = data.vsID
     initiator = data.initiator //should be votographer or vmodel
@@ -1350,6 +1351,8 @@ function findVShootIndex(id){
 function User(username, socket) { //used soley to have a reference from all users to its socket
   this.username = username;
   this.socket = socket;
+  console.log("printing the events on this socket for " + this.username + "in user constructor")
+  console.log(this.socket.eventNamesO())
 }
 
 function Vshooter(socket, username, vshoot, role) { //only users that are currently vshooting will have this object
@@ -1361,12 +1364,6 @@ function Vshooter(socket, username, vshoot, role) { //only users that are curren
     this.didInitiate = false;
 
     this.socket.on("takephoto", function(data) {
-      // var vmodel;
-      // for (i=0; i < self.vshoot.vshooters.length; i++){
-      //   if (self.vshoot.vshooters[i].role == 'vmodel'){
-      //     vmodel = self.vshoot.vshooters[i];
-      //   }
-      // }
       console.log(self.vshoot.endTime)
       if(self.vshoot.endTime == null){
       	flash = data.flash;
@@ -1412,6 +1409,9 @@ function Vshooter(socket, username, vshoot, role) { //only users that are curren
     	}
       
     })
+
+    console.log("printing the events on this socket for " + this.username + "in vshooter constructor");
+    console.log(this.socket.eventNamesO())
 
     
 
@@ -1522,35 +1522,4 @@ Vshoot.prototype.endVshoot = function() {
     this.player2.socket.emit("gameOver")
 }
 
-/* do not actually need the following 
-//a client will make a request to this route to initiate a new vshoot
-app.get('/startNewVS/:requester/:requesterRole/:requestee', startNewVS);
-function startNewVS(request, response){
-  //declare a new Namespace
-  var nspString = "'/" + request.params.requester + request.params.requestee + "'";
-  var nsp = socketChannel.of(nspString);
-
-  //create initiator object
-  initiator = {
-    username: request.params.requester,
-    role: request.params.requesterRole
-  }
-  
-  //first declare a new vs
-  var vs = new Vshoot(nsp, initiator);
-  
-  //then loop through allUsers array to find the record of the requestee, use this id to emit a message saying that the requester wants to start a vshoot with you
-  //then respond to the client with the namespace they should connect to and once they connect to the namespace, the view should become a waiting screen waiting to see if the other client will accept vs
-
-  //create initiator object
-  initiator = {
-    username: request.params.requester,
-    role: request.params.requesterRole
-  }
-
-  //instantiate a new vshoot 
-  var vs = new Vshoot(initiator);
-  
-} 
-*/
 
