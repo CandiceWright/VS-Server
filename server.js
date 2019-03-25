@@ -1352,7 +1352,7 @@ function User(username, socket) { //used soley to have a reference from all user
   this.username = username;
   this.socket = socket;
   console.log("printing the events on this socket for " + this.username + "in user constructor")
-  console.log(this.socket.eventNamesO())
+  console.log(this.socket.eventNames())
 }
 
 function Vshooter(socket, username, vshoot, role) { //only users that are currently vshooting will have this object
@@ -1411,7 +1411,7 @@ function Vshooter(socket, username, vshoot, role) { //only users that are curren
     })
 
     console.log("printing the events on this socket for " + this.username + "in vshooter constructor");
-    console.log(this.socket.eventNamesO())
+    console.log(this.socket.eventNames())
 
     
 
