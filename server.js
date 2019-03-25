@@ -1313,8 +1313,8 @@ socketChannel.sockets.on('connection', function(socket){
     }
 
     //remove take photo listener and cancelRequest listener
-    socket.off('takephoto')
-    socket.off('cancelRequest')
+    socket.removeAllListeners('takephoto')
+    socket.removeAllListeners('cancelRequest')
     console.log("printing socket events after ending shoot")
     console.log(socket.eventNames())
 
