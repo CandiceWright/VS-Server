@@ -1069,6 +1069,7 @@ socketChannel.sockets.on('connection', function(socket){
                   var foundUser = false;
                   for (i=0; i < allUsers.length; i++){
                     if (allUsers[i].username == receiver){
+                      console.log(allUsers[i].username)
                       foundUser = true;
                       requesteeSocket = allUsers[i].socket;
                       console.log("requesteeSocket: " + requesteeSocket.id);
