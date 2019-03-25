@@ -1312,7 +1312,11 @@ socketChannel.sockets.on('connection', function(socket){
 	    })
     }
 
-
+    //remove take photo listener and cancelRequest listener
+    socket.off('takephoto')
+    socket.off('cancelRequest')
+    console.log("printing socket events after ending shoot")
+    console.log(socket.eventNames())
 
 
   })
@@ -1406,6 +1410,12 @@ function Vshooter(socket, username, vshoot, role) { //only users that are curren
           }
       		currentvshoots.splice(wantedVS, 1);
       		console.log(currentvshoots.length)
+
+          //remove event listeners
+          this.socket.off('takephoto')
+          this.socket.off('cancelRequest')
+          console.log("printing socket events after cancelRequest")
+          console.log(this.socket.eventNames())
     	}
       
     })
