@@ -191,20 +191,20 @@ function validateLogin(request, response){
     var password = data.password;
 
     var loggedInAlready = false;
+    var index;
     for (var i=0; i < allUsers.length; i++){
       if(allUsers[i].username == username){
         //user is logged in on aother device
         loggedInAlready = true;
+        index = i;
         break;
       }
     }
 
-    // if (loggedInAlready){
-    //   response.setHeader('Access-Control-Allow-Origin', '*');
-    //   response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    //   response.statusCode = 200;
-    //   response.send("already logged in");
-    // }
+    if (loggedInAlready){
+      console.log("removing previously logged in user instance");
+      allUsers.splice(index, 1);
+    }
 
     //else {
       con.connect(function(err) {
