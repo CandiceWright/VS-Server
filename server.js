@@ -199,14 +199,14 @@ function validateLogin(request, response){
       }
     }
 
-    if (loggedInAlready){
-      response.setHeader('Access-Control-Allow-Origin', '*');
-      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-      response.statusCode = 200;
-      response.send("already logged in");
-    }
+    // if (loggedInAlready){
+    //   response.setHeader('Access-Control-Allow-Origin', '*');
+    //   response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    //   response.statusCode = 200;
+    //   response.send("already logged in");
+    // }
 
-    else {
+    //else {
       con.connect(function(err) {
         var query1 = "SELECT * FROM Users WHERE username = " + "'" + username + "'";
         con.query(query1, function (err2, result, fields) {
@@ -248,7 +248,7 @@ function validateLogin(request, response){
           }
         });
       });
-    }
+    //}
 
     
 }
