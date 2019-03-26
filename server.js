@@ -183,12 +183,31 @@ function signUp(request, response){
 
 app.post('/login', validateLogin);
 function validateLogin(request, response){
-    //var data = request.params;
+  //first check if they are logged in on another device
+    
     var data = request.body;
     var username = data.username;
     console.log(username);
     var password = data.password;
-    con.connect(function(err) {
+
+    var loggedInAlready = false;
+    for (var i=0; i < allUsers.length; i++){
+      if(allUsers[i].username == username){
+        //user is logged in on aother device
+        loggedInAlready = true;
+        break;
+      }
+    }
+
+    if (loggedInAlready){
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      response.statusCode = 200;
+      response.send("already logged in");
+    }
+
+    else {
+      con.connect(function(err) {
         var query1 = "SELECT * FROM Users WHERE username = " + "'" + username + "'";
         con.query(query1, function (err2, result, fields) {
         
@@ -228,7 +247,10 @@ function validateLogin(request, response){
             response.send("failed");
           }
         });
-    });
+      });
+    }
+
+    
 }
 
 app.post('/logout', logout);
@@ -254,16 +276,10 @@ function logout(request, response){
 
   }
   response.setHeader('Access-Control-Allow-Origin', '*');
-    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    response.statusCode = 200;
-    response.send("logout successful");
-  // else {
-  //   response.setHeader('Access-Control-Allow-Origin', '*');
-  //   response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-  //   response.statusCode = 404;
-  //   response.send("could not log out");
-  //   console.log("could not log out");
-  // }
+  response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  response.statusCode = 200;
+  response.send("logout successful");
+  
 }
 
 
