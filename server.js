@@ -1049,9 +1049,9 @@ socketChannel.sockets.on('connection', function(socket){
     
   });
 
-  //function(requestor, requestorRole, requestee, time )
+  //new vs request 
   socket.on("startVshoot", function(data){
-    console.log("new vs request from " + data.sender + " to " + data.receiver + " at " + data.date);
+    console.log("new vs request from " + data.sender + " with socket " + socket.id + " to " + data.receiver + " at " + data.date);
     //console.log("new vs request from " + requestor + " to " + requestee + " at " + time);
     //declare a new vshoot and add the requestor to that vshoot
     var requestor = data.sender;
