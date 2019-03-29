@@ -1039,6 +1039,21 @@ socketChannel.sockets.on('connection', function(socket){
         allUsers[i].socket = socket
       }
     }
+    
+    //check to see if user is currently in a vshoot, if so, update socket ref
+    for(i=0; i < currentvshoots.length; i++){
+      if(currentvshoots[i].votographer.username == username){
+        console.log("updating votographer socket")
+        currentvshoots[i].votographer.socket = socket;
+        break;
+      }
+      else if(currentvshoots[i].vmodel.username == username){
+        console.log("updating vmodel socket")
+        currentvshoots[i].vmodel.socket = socket;
+        break;
+      }
+    }
+
     if (!exists){
       var newUser = new User(username, socket);
       allUsers.push(newUser);
@@ -1321,8 +1336,9 @@ socketChannel.sockets.on('connection', function(socket){
       			currentvshoots[vsIndex].votographer.vshoot.endTime = endTimeStr
       			 
 	        	if (vsIndex != null){
-    				currentvshoots.splice(vsIndex, 1);
-  				}
+    				  currentvshoots.splice(vsIndex, 1);
+              console.log("currentvshoots number is " + currentvshoots.length)
+  				  }
 	          
 	        }
 	        else {
