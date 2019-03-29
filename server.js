@@ -1045,12 +1045,12 @@ socketChannel.sockets.on('connection', function(socket){
       if(currentvshoots[i].votographer.username == username){
         console.log("updating votographer socket")
         currentvshoots[i].votographer.socket = socket;
-        break;
+        //break;
       }
       else if(currentvshoots[i].vmodel.username == username){
         console.log("updating vmodel socket")
         currentvshoots[i].vmodel.socket = socket;
-        break;
+        //break;
       }
     }
 
