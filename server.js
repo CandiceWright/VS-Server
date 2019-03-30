@@ -1045,12 +1045,16 @@ socketChannel.sockets.on('connection', function(socket){
       if(currentvshoots[i].votographer.username == username){
         console.log("updating votographer socket")
         currentvshoots[i].votographer.socket = socket;
-        //break;
+        //also notify vmodel that they're back
+        currentvshoots[i].vmodel.socket.emit("votographerIsBack");
+        
       }
       else if(currentvshoots[i].vmodel.username == username){
         console.log("updating vmodel socket")
         currentvshoots[i].vmodel.socket = socket;
-        //break;
+        //also notify votographer that they're back
+        currentvshoots[i].votographer.socket.emit("vmodelIsBack")
+        
       }
     }
 
@@ -1063,6 +1067,23 @@ socketChannel.sockets.on('connection', function(socket){
     console.log(socket.listenerCount('join'))
     
   });
+
+  //listen for app going to background
+  socket.on("goingToBackground", function(username){
+    //check to see if that user is currently in a vshoot
+    for(i=0; i < currentvshoots.length; i++){
+      if(currentvshoots[i].votographer.username == username){
+        //notify other vshooter that they are going to the background
+        currentvshoots[i].vmodel.socket.emit("votographerInBackground");
+        //break;
+      }
+      else if(currentvshoots[i].vmodel.username == username){
+        //notify other vshooter that they are going to the background
+        currentvshoots[i].votographer.socket.emit("vmodelInBackground");
+        //break;
+      }
+    }
+  })
 
   //new vs request 
   socket.on("startVshoot", function(data){
