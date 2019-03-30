@@ -1042,6 +1042,7 @@ socketChannel.sockets.on('connection', function(socket){
     
     //check to see if user is currently in a vshoot, if so, update socket ref
     for(i=0; i < currentvshoots.length; i++){
+      console.log("For vshoot " + i "the votographer is " + currentvshoots[i].votographer.username "and the vmodel is " + currentvshoots[i].vmodel.username)
       if(currentvshoots[i].votographer.username == username){
         console.log("updating votographer socket")
         currentvshoots[i].votographer.socket = socket;
@@ -1074,11 +1075,13 @@ socketChannel.sockets.on('connection', function(socket){
     for(i=0; i < currentvshoots.length; i++){
       if(currentvshoots[i].votographer.username == username){
         //notify other vshooter that they are going to the background
+        console.log("votographer is going to background")
         currentvshoots[i].vmodel.socket.emit("votographerInBackground");
         //break;
       }
       else if(currentvshoots[i].vmodel.username == username){
         //notify other vshooter that they are going to the background
+        console.log("vmodel is going to background")
         currentvshoots[i].votographer.socket.emit("vmodelInBackground");
         //break;
       }
