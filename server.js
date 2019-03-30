@@ -1042,7 +1042,7 @@ socketChannel.sockets.on('connection', function(socket){
     
     //check to see if user is currently in a vshoot, if so, update socket ref
     for(i=0; i < currentvshoots.length; i++){
-      console.log("For vshoot " + i "the votographer is " + currentvshoots[i].votographer.username "and the vmodel is " + currentvshoots[i].vmodel.username)
+      console.log("For vshoot " + i "the votographer is " + currentvshoots[i].votographer.username + "and the vmodel is " + currentvshoots[i].vmodel.username)
       if(currentvshoots[i].votographer.username == username){
         console.log("updating votographer socket")
         currentvshoots[i].votographer.socket = socket;
