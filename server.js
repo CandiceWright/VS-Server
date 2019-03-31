@@ -1347,6 +1347,7 @@ socketChannel.sockets.on('connection', function(socket){
     if (vshoot != null){ //one was found with that id
       if(initiator == "vmodel"){
         console.log("vmodel is ending the vshoot");
+        console.log("A vmodel is ending vs and votographer's socket status is " + socket.connected)
         //first check to see if socket is connected
         if (vshoot.votographer.socket.connected){
           vshoot.votographer.socket.emit("VShootEnded", "vs is ending");
@@ -1359,6 +1360,7 @@ socketChannel.sockets.on('connection', function(socket){
       else {
         console.log("votographer is ending vshoot");
         //first check to see if socket is connected
+        console.log("A votographer is ending vs and vmodel's socket status is " + socket.connected)
         if (vshoot.vmodel.socket.connected){
           vshoot.vmodel.socket.emit("VShootEnded", "vs is ending");
         }
