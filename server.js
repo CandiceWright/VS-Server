@@ -1000,6 +1000,7 @@ var socket = require('socket.io');
 var socketChannel = socket(server);
 var allUsers = [];
 var currentvshoots = [];
+var waitingForUsers = []; //a list of usernames that are apart of a vshoot that has been canceled by other user. waiting for them to enter back into app to notify them
 
 function generateAccessToken(username, roomName, callback){
   // Create Video Grant
@@ -1032,19 +1033,23 @@ socketChannel.sockets.on('connection', function(socket){
   socket.on("join", function(username){ //when this socket emits a new user event, do the following 
     console.log("storing a new user with username " + username + "and socket " + socket.id);
     var exists = false;
+    var index;
     for (i=0; i < allUsers.length; i++){
       if (allUsers[i].username == username){
         console.log("updating socket");
         exists = true;
         allUsers[i].socket = socket
+        index = i;
       }
     }
     
     //check to see if user is currently in a vshoot, if so, update socket ref
+    var notInVS = true
     for(i=0; i < currentvshoots.length; i++){
       console.log("For vshoot " + i + "the votographer is " + currentvshoots[i].votographer.username + "and the vmodel is " + currentvshoots[i].vmodel.username)
       if(currentvshoots[i].votographer.username == username){
         console.log("updating votographer socket")
+        notInVS = false;
         currentvshoots[i].votographer.socket = socket;
         //also notify vmodel that they're back
         currentvshoots[i].vmodel.socket.emit("votographerIsBack");
@@ -1052,11 +1057,22 @@ socketChannel.sockets.on('connection', function(socket){
       }
       else if(currentvshoots[i].vmodel.username == username){
         console.log("updating vmodel socket")
+        notInVS = false
         currentvshoots[i].vmodel.socket = socket;
         //also notify votographer that they're back
         currentvshoots[i].votographer.socket.emit("vmodelIsBack")
         
       }
+    }
+
+    if(notInVS){ //check to see if server was waiting on them to come back for end notification
+      for(i=0; i < waitingForUsers.length; i++){
+        if (waitingForUsers[i] == username){
+          console.log("vshoot is already cancelled now")
+          socket.emit("VShootEnded", "vs is ending");
+        }
+      }
+
     }
 
     if (!exists){
@@ -1331,11 +1347,24 @@ socketChannel.sockets.on('connection', function(socket){
     if (vshoot != null){ //one was found with that id
       if(initiator == "vmodel"){
         console.log("vmodel is ending the vshoot");
-        vshoot.votographer.socket.emit("VShootEnded", "vs is ending");
+        //first check to see if socket is connected
+        if (vshoot.votographer.socket.connected){
+          vshoot.votographer.socket.emit("VShootEnded", "vs is ending");
+        }
+        else {
+          waitingForUsers.push(vshoot.votographer.username)
+        }
+        
       }
       else {
         console.log("votographer is ending vshoot");
-        vshoot.vmodel.socket.emit("VShootEnded", "vs is ending");
+        //first check to see if socket is connected
+        if (vshoot.vmodel.socket.connected){
+          vshoot.vmodel.socket.emit("VShootEnded", "vs is ending");
+        }
+        else {
+          waitingForUsers.push(vshoot.vmodel.username)
+        }
       }
 
       //add vshoot to db
