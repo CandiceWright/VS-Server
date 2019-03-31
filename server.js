@@ -1350,9 +1350,11 @@ socketChannel.sockets.on('connection', function(socket){
         console.log("A vmodel is ending vs and votographer's socket status is " + socket.connected)
         //first check to see if socket is connected
         if (vshoot.votographer.socket.connected){
+          console.log("votographer is connected so Ill tell them now")
           vshoot.votographer.socket.emit("VShootEnded", "vs is ending");
         }
         else {
+          console.log("votographer is not connecting so Ill have to wait to tell them")
           waitingForUsers.push(vshoot.votographer.username)
         }
         
@@ -1360,11 +1362,13 @@ socketChannel.sockets.on('connection', function(socket){
       else {
         console.log("votographer is ending vshoot");
         //first check to see if socket is connected
-        console.log("A votographer is ending vs and vmodel's socket status is " + socket.connected)
+        console.log("A votographer is ending vs and vmodel's socket status is " + vshoot.vmodel.socket.connected)
         if (vshoot.vmodel.socket.connected){
+          console.log("vmodel is connected so Ill tell them now")
           vshoot.vmodel.socket.emit("VShootEnded", "vs is ending");
         }
         else {
+          console.log("vmodel is not connecting so Ill have to wait to tell them")
           waitingForUsers.push(vshoot.vmodel.username)
         }
       }
