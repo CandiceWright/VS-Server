@@ -1045,6 +1045,8 @@ socketChannel.sockets.on('connection', function(socket){
     
     //check to see if user is currently in a vshoot, if so, update socket ref
     var notInVS = true
+    console.log("printing number of vshoots before I check to see if this user is in a vshoot")
+    console.log(currentvshoots.length)
     for(i=0; i < currentvshoots.length; i++){
       console.log("For vshoot " + i + "the votographer is " + currentvshoots[i].votographer.username + "and the vmodel is " + currentvshoots[i].vmodel.username)
       if(currentvshoots[i].votographer.username == username){
@@ -1064,15 +1066,21 @@ socketChannel.sockets.on('connection', function(socket){
         
       }
     }
-
+    var needsToNotify;
     if(notInVS){ //check to see if server was waiting on them to come back for end notification
       for(i=0; i < waitingForUsers.length; i++){
         if (waitingForUsers[i] == username){
           console.log("vshoot is already cancelled now")
-          socket.emit("VShootEnded", "vs is ending");
+          waitingForUsers.splice(i, 1);
+          needsToNotify = true
         }
       }
 
+    }
+
+    if (needsToNotify){
+      console.log("notifying now")
+      socket.emit("VShootEnded", "vs is ending");
     }
 
     if (!exists){
