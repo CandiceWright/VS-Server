@@ -1019,6 +1019,7 @@ function generateAccessToken(username, roomName, callback){
 socketChannel.sockets.on('connection', function(socket){
   console.log("new connection");
   console.log(socket.id);
+  socket.emit("connected")
   //socket.emit("new connection");
   //socket.emit("successfully connected");
   for (i=0; i < allUsers.length; i++){
