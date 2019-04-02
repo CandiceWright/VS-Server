@@ -1054,8 +1054,8 @@ socketChannel.sockets.on('connection', function(socket){
         console.log("updating votographer socket")
         notInVS = false;
         console.log("votographer socket listenerCount after coming back from bg");
-        console.log(currentvshoots[i].votographer.socket.eventNames());
         currentvshoots[i].votographer.socket = socket;
+        console.log(currentvshoots[i].votographer.socket.eventNames());
         //also notify vmodel that they're back
         currentvshoots[i].vmodel.socket.emit("votographerIsBack");
         
