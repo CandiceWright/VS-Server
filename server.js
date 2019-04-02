@@ -1056,6 +1056,8 @@ socketChannel.sockets.on('connection', function(socket){
         console.log("votographer socket listenerCount after coming back from bg");
         currentvshoots[i].votographer.socket = socket;
         console.log(currentvshoots[i].votographer.socket.eventNames());
+        currentvshoots[i].votographer.addTakePhotoListener();
+        console.log("now printing vshooter listeners after adding")
         //also notify vmodel that they're back
         currentvshoots[i].vmodel.socket.emit("votographerIsBack");
         
@@ -1541,6 +1543,22 @@ function Vshooter(socket, username, vshoot, role) { //only users that are curren
 
 }
 
+Vshooter.prototype.addTakePhotoListener = function (){
+  this.socket.on("takephoto", function(data) {
+      console.log("im trying to take photo");
+      console.log(self.vshoot.endTime)
+      if(self.vshoot.endTime == null){
+        flash = data.flash;
+        console.log("printing vmodel for take photo")
+        console.log(self.vshoot)
+        console.log("printing vmodel")
+        console.log(self.vshoot.vmodel)
+        self.vshoot.takephoto(self.vshoot.vmodel, flash);
+      }
+      
+    })
+}
+
 function Vshoot(id) {
     this.id = id;
     this.votographer = null; //Vshooter object
@@ -1607,14 +1625,7 @@ Vshoot.prototype.startVshoot = function() {
   var token1 = ''
   var token2 = ''
   console.log(roomName)
-	// client.video.rooms
- //            .create({
- //               enableTurn: false,
- //               type: 'peer-to-peer',
- //               uniqueName: roomName
- //             })
- //            .then(room => console.log(room))
- //            .done();
+
   generateAccessToken(this.votographer.username, roomName, function(t1){
     token1 = t1
   })
