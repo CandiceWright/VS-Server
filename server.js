@@ -1059,6 +1059,7 @@ socketChannel.sockets.on('connection', function(socket){
         console.log(currentvshoots[i].votographer.socket.eventNames());
         currentvshoots[i].votographer.socket.on("takephoto", function(data) {
           console.log("im trying to take photo");
+          console.log(currentvshoots[i])
           console.log(currentvshoots[i].endTime)
           if(currentvshoots[i].endTime == null){
             flash = data.flash;
