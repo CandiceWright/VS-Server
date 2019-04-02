@@ -1055,6 +1055,7 @@ socketChannel.sockets.on('connection', function(socket){
         notInVS = false;
         console.log("votographer socket listenerCount after coming back from bg");
         currentvshoots[i].votographer.socket = socket;
+        console.log(currentvshoots[i])
         console.log(currentvshoots[i].votographer.socket.eventNames());
         currentvshoots[i].votographer.addTakePhotoListener();
         console.log("now printing vshooter listeners after adding")
