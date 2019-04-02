@@ -1054,24 +1054,10 @@ socketChannel.sockets.on('connection', function(socket){
         console.log("updating votographer socket")
         notInVS = false;
         console.log("votographer socket listenerCount after coming back from bg");
-        currentvshoots[i].votographer.socket = socket;
-        console.log(currentvshoots[i])
+        currentvshoots[i].votographer = new Vshooter(socket, username, vs, "votographer")
+        //currentvshoots[i].votographer.socket = socket;
         console.log(currentvshoots[i].votographer.socket.eventNames());
-        currentvshoots[i].votographer.socket.on("takephoto", function(data) {
-          console.log("im trying to take photo");
-          console.log(currentvshoots[i])
-          console.log(currentvshoots[i].endTime)
-          if(currentvshoots[i].endTime == null){
-            flash = data.flash;
-            console.log("printing vmodel for take photo")
-            console.log("printing vmodel")
-            console.log(currentvshoots[i].vmodel)
-            currentvshoots[i].takephoto(currentvshoots[i].vmodel, flash);
-          }
-      
-        })
-        console.log("now printing vshooter listeners after adding")
-        console.log(currentvshoots[i].votographer.socket.eventNames());
+
         //also notify vmodel that they're back
         currentvshoots[i].vmodel.socket.emit("votographerIsBack");
         
