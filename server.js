@@ -1057,8 +1057,20 @@ socketChannel.sockets.on('connection', function(socket){
         currentvshoots[i].votographer.socket = socket;
         console.log(currentvshoots[i])
         console.log(currentvshoots[i].votographer.socket.eventNames());
-        currentvshoots[i].votographer.addTakePhotoListener();
+        currentvshoots[i].votographer.socket.on("takephoto", function(data) {
+          console.log("im trying to take photo");
+          console.log(currentvshoots[i].endTime)
+          if(currentvshoots[i].endTime == null){
+            flash = data.flash;
+            console.log("printing vmodel for take photo")
+            console.log("printing vmodel")
+            console.log(currentvshoots[i].vmodel)
+            currentvshoots[i].takephoto(currentvshoots[i].vmodel, flash);
+          }
+      
+        })
         console.log("now printing vshooter listeners after adding")
+        console.log(currentvshoots[i].votographer.socket.eventNames());
         //also notify vmodel that they're back
         currentvshoots[i].vmodel.socket.emit("votographerIsBack");
         
@@ -1544,21 +1556,6 @@ function Vshooter(socket, username, vshoot, role) { //only users that are curren
 
 }
 
-Vshooter.prototype.addTakePhotoListener = function (){
-  this.socket.on("takephoto", function(data) {
-      console.log("im trying to take photo");
-      console.log(this.vshoot.endTime)
-      if(this.vshoot.endTime == null){
-        flash = data.flash;
-        console.log("printing vmodel for take photo")
-        console.log(this.vshoot)
-        console.log("printing vmodel")
-        console.log(this.vshoot.vmodel)
-        this.vshoot.takephoto(this.vshoot.vmodel, flash);
-      }
-      
-    })
-}
 
 function Vshoot(id) {
     this.id = id;
