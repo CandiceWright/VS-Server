@@ -1546,7 +1546,7 @@ function Vshooter(socket, username, vshoot, role) { //only users that are curren
 Vshooter.prototype.addTakePhotoListener = function (){
   this.socket.on("takephoto", function(data) {
       console.log("im trying to take photo");
-      console.log(self.vshoot.endTime)
+      console.log(this.vshoot.endTime)
       if(this.vshoot.endTime == null){
         flash = data.flash;
         console.log("printing vmodel for take photo")
