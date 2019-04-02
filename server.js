@@ -1210,7 +1210,10 @@ socketChannel.sockets.on('connection', function(socket){
 
                         var requesteeSocket;
                         var foundUser = false;
+                        console.log("printing all users length when start vs request from " + receiver)
+                        console.log(allUsers.length)
                         for (i=0; i < allUsers.length; i++){
+                          console.log(allUsers[i].username)
                           if (allUsers[i].username == receiver){
                             foundUser = true;
                             requesteeSocket = allUsers[i].socket;
