@@ -1547,13 +1547,13 @@ Vshooter.prototype.addTakePhotoListener = function (){
   this.socket.on("takephoto", function(data) {
       console.log("im trying to take photo");
       console.log(self.vshoot.endTime)
-      if(self.vshoot.endTime == null){
+      if(this.vshoot.endTime == null){
         flash = data.flash;
         console.log("printing vmodel for take photo")
-        console.log(self.vshoot)
+        console.log(this.vshoot)
         console.log("printing vmodel")
-        console.log(self.vshoot.vmodel)
-        self.vshoot.takephoto(self.vshoot.vmodel, flash);
+        console.log(this.vshoot.vmodel)
+        this.vshoot.takephoto(this.vshoot.vmodel, flash);
       }
       
     })
