@@ -1472,6 +1472,7 @@ function Vshooter(socket, username, vshoot, role) { //only users that are curren
     this.didInitiate = false;
 
     this.socket.on("takephoto", function(data) {
+      console.log("im trying to take photo");
       console.log(self.vshoot.endTime)
       if(self.vshoot.endTime == null){
       	flash = data.flash;
