@@ -74,10 +74,23 @@ admin.initializeApp({
 //server setup 
 var express = require('express');
 var app = express(); 
+
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 // var port = process.env.PORT || 8081;
-var server = app.listen(7343, listen); 
+//var server = app.listen(7343, listen); 
+
+var fs = require('fs');
+var key = fs.readFileSync('ssl/server.key');
+var cert = fs.readFileSync( 'ssl/server.cert' );
+
+var options = {
+key: key,
+cert: cert
+};
+
+var https = require('https');
+https.createServer(options, app).listen(443, listen);
 
 
 function listen(){
