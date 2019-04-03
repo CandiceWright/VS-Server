@@ -90,9 +90,8 @@ cert: cert
 };
 
 var https = require('https');
-var server = https.createServer(options, app)
+var server = https.createServer(options, app).listen(443, listen)
 //https.createServer(options, app).listen(443, listen);
-server.listen(443,listen)
 
 
 function listen(){
