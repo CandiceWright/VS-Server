@@ -83,7 +83,7 @@ app.use(bodyParser.json());
 var https = require('https');
 var fs = require('fs');
 var options = {
-  key: fs.readFileSync('ssl/pkey.txt'),
+  //key: fs.readFileSync('ssl/pkey.txt'),
   cert: fs.readFileSync('ssl/server2.crt')
 };
 
