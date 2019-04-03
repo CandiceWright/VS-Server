@@ -78,7 +78,7 @@ var app = express();
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 // var port = process.env.PORT || 8081;
-var server = app.listen(7343, listen); 
+//var server = app.listen(7343, listen); 
 
 var https = require('https');
 var fs = require('fs');
