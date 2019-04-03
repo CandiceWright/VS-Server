@@ -78,29 +78,16 @@ var app = express();
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 // var port = process.env.PORT || 8081;
-//var server = app.listen(7343, listen); 
+var server = app.listen(7343, listen); 
 
-//var fs = require('fs');
-//var key = fs.readFileSync('ssl/server.key');
-//var cert = fs.readFileSync( 'ssl/server.cert' );
-
+// var https = require('https');
+// var fs = require('fs');
 // var options = {
-// key: key,
-// cert: cert
+//   key: fs.readFileSync('ssl/privatekey.pem'),
+//   cert: fs.readFileSync('ssl/server.crt')
 // };
 
-//var https = require('https');
-//var server = https.createServer(options, app).listen(7343, listen)
-//https.createServer(options, app).listen(443, listen);
-
-var https = require('https');
-var fs = require('fs');
-var options = {
-  key: fs.readFileSync('ssl/privatekey.pem'),
-  cert: fs.readFileSync('ssl/server.crt')
-};
-
-var server = https.createServer(options, app).listen(7343,listen);
+// var server = https.createServer(options, app).listen(7343,listen);
 
 
 function listen(){
