@@ -84,10 +84,10 @@ var server = app.listen(7343, listen);
 //var key = fs.readFileSync('ssl/server.key');
 //var cert = fs.readFileSync( 'ssl/server.cert' );
 
-var options = {
-key: key,
-cert: cert
-};
+// var options = {
+// key: key,
+// cert: cert
+// };
 
 //var https = require('https');
 //var server = https.createServer(options, app).listen(7343, listen)
