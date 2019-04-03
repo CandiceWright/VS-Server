@@ -90,7 +90,9 @@ cert: cert
 };
 
 var https = require('https');
-https.createServer(options, app).listen(443, listen);
+var server = https.createServer(options, app)
+//https.createServer(options, app).listen(443, listen);
+server.listen(443,listen)
 
 
 function listen(){
@@ -1010,7 +1012,8 @@ function deleteFriend(request, response){
 //start vshoot logic
 //create a main socket channel for all users to connect 
 var socket = require('socket.io');
-var socketChannel = socket(server);
+// var socketChannel = socket(server);
+var socketChannel = socket(https);
 var allUsers = [];
 var currentvshoots = [];
 var waitingForUsers = []; //a list of usernames that are apart of a vshoot that has been canceled by other user. waiting for them to enter back into app to notify them
