@@ -1,17 +1,20 @@
+//server setup 
+var express = require('express');
+var app = express(); 
+
+var bodyParser = require('body-parser');
+app.use(bodyParser.json());
+// var port = process.env.PORT || 8081;
+var server = app.listen(7343, listen); 
+
+function listen(){
+  console.log("listening..."); //server waiting for connections
+}
+
 //database setup
 var mysqldb = require('mysql');
 var bcrypt = require('bcrypt');
-// var con = mysqldb.createConnection({
-//   host: "vshootdb.cnubl3lw5gjo.us-west-2.rds.amazonaws.com",
-//   user: "root",
-//   password: "4912bU!L9",
-//   database: "vshootDB"
-// });
 
-// con.connect(function(err) {
-//   if (err) throw err;
-//   console.log("Connected!");
-// });
 
 var db_config = {
   host: "vshootdb.cnubl3lw5gjo.us-west-2.rds.amazonaws.com",
@@ -71,34 +74,6 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-//server setup 
-var express = require('express');
-var app = express(); 
-
-var bodyParser = require('body-parser');
-app.use(bodyParser.json());
-// var port = process.env.PORT || 8081;
-var server = app.listen(7343, listen); 
-
-// var https = require('https');
-// var fs = require('fs');
-// var options = {
-//   //key: fs.readFileSync('ssl/pkey.txt'),
-//   cert: fs.readFileSync('ssl/server2.crt')
-// };
-
-// var server = https.createServer(options, app).listen(7343,listen);
-
-
-function listen(){
-	console.log("listening..."); //server waiting for connections
-}
-
-app.get('/test', proof); 
-
-function proof(request,response){
-	response.send("Hi I am working. What do you need.");
-}
 
 //password encryption functions
 //encryption 
@@ -121,6 +96,13 @@ function getUserToken(uidNum, callback){
   .catch((err) => {
     console.log("error creating token", err);
   })
+}
+
+/****************** Test Route *********************/
+app.get('/test', proof); 
+
+function proof(request,response){
+  response.send("Hi I am working. What do you need.");
 }
 
 /****************** Login/Signup and Logout Routes **********************/
