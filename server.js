@@ -20,7 +20,8 @@ var db_config = {
   host: "vshootdb.cnubl3lw5gjo.us-west-2.rds.amazonaws.com",
   user: "root",
   password: "4912bU!L9",
-  database: "vshootDB"
+  database: "vshootDB",
+  charset : 'utf8mb4_unicode_ci'
 }
 var con;
 
@@ -47,6 +48,24 @@ function handleDisconnect() {
 
 handleDisconnect();
 
+
+//apn setup
+const apn = require('apn');
+let options = {
+  token: {
+    key: "cert_notifications.p8",
+    // Replace keyID and teamID with the values you've previously saved.
+    keyId: "D8AAX3DVD6",
+    teamId: "KVWT85GL72"
+  },
+  production: false
+};
+
+let apnProvider = new apn.Provider(options);
+
+
+// Close the server
+//apnProvider.shutdown();
 
 //for sending mail
 var nodemailer = require('nodemailer');
@@ -109,20 +128,20 @@ function proof(request,response){
 
 app.post('/signup', signUp);
 function signUp(request, response){
-	//console.log(response.body);
-	console.log(request);
-	console.log(request.params);
-	var data = request.body;
-	var username = data.username;
-	console.log(username);
-	var password = data.password;
-	encryptedPass = encrypt(password);
-	var email = data.email;
+  //console.log(response.body);
+  console.log(request);
+  console.log(request.params);
+  var data = request.body;
+  var username = data.username;
+  console.log(username);
+  var password = data.password;
+  encryptedPass = encrypt(password);
+  var email = data.email;
   //var pin = data.pin;
   //var pinEncr = encrypt(pin);
   //var sqa =  data.securityAnswer;
   //encryptedSQA = encrypt(sqa);
-	// con.connect(function(err) {
+  // con.connect(function(err) {
         var query1 = "INSERT INTO Users (email, username,uPassword, profilePic, vsPreference) VALUES (" + "'" + email + "'," + "'" + username + "'," + "'" + encryptedPass + "'," + "'none'," + "'" + "1" + "'"  + ");"
         con.query(query1, function (err2, result, fields) {
   
@@ -273,6 +292,35 @@ function logout(request, response){
   response.send("logout successful");
   
 }
+
+app.post('/users/devicetokens', storeDeviceToken);
+function storeDeviceToken(request, response){
+  
+  var data = request.body;
+  var username = data.username;
+  var token = data.token 
+  var query1 = "UPDATE Users SET deviceToken = '" + token + "'" + "WHERE username = '" + username + "'";
+  con.query(query1, function (err2, result, fields) {
+  
+    if (!err2){
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      response.statusCode = 200
+      response.send("added device token")
+    }
+    else {
+      console.log(err2);
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      response.statusCode = 404;
+      response.send("failed");
+    }
+  })
+          
+
+}
+
+
 
 
 /************* Forgot Username/Password ******************/
@@ -721,8 +769,11 @@ function getUserId(request,response){
         response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
         response.statusCode = 200;
         console.log(userId)
-        var idString = '"' + userId + '"'
-        response.send(idString);
+        //var idString = '"' + userId + '"'
+        var json = {
+          "userId" : userId
+        }
+        response.send(json);
       }
       
     }
@@ -769,7 +820,7 @@ function getAllUsers(request, response){
 
 function changeToFriendArray(result, callback){
   console.log(result);
-	var friends = [];
+  var friends = [];
   if (result.length == 0){
     callback(friends);
   }
@@ -814,114 +865,114 @@ function changeToFriendArray(result, callback){
 
 app.get('/friends/:username', returnFriends);
 function returnFriends(request, response){
-	username = request.params.username;
+  username = request.params.username;
   console.log(username)
-	// var friends = [];
-	//first get the id of the user
-	con.connect(function(err){
-		var query = "SELECT * FROM Users WHERE username = " + "'" + username + "'";
-		con.query(query, function(err2, result, fields){
-			if (!err2){
-				userId = result[0].userId;
-				var query2 = "SELECT * FROM Friends WHERE friend1 = " + userId
-				con.query(query2, function(err3, result2, fields2){
-					if (!err3){
-						// //everything went ok
-						// //for now just log the result to see the format
-						 console.log(result2)
-						// //go  through results and get username infor for each
-						changeToFriendArray(result2 , function(friendsArr){
-							console.log(friendsArr)
-							//decide whether you need to stringify the result before sending
-							response.setHeader('Access-Control-Allow-Origin', '*');
-            				response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-							response.statusCode = 200;
-							response.send(friendsArr);
-						})
-						
-					}
-					else {
-						console.log(err3)
-						response.setHeader('Access-Control-Allow-Origin', '*');
-            			// Request methods you wish to allow
-            			response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-						response.statusCode = 404;
-						response.send("failed to return friends")
-					}
-				})
-			}
-			else {
-				console.log(err2);
-				response.setHeader('Access-Control-Allow-Origin', '*');
-            	// Request methods you wish to allow
-            	response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-				response.statusCode = 404;
-				response.send("failed");
-			}
-		})
-	})
+  // var friends = [];
+  //first get the id of the user
+  con.connect(function(err){
+    var query = "SELECT * FROM Users WHERE username = " + "'" + username + "'";
+    con.query(query, function(err2, result, fields){
+      if (!err2){
+        userId = result[0].userId;
+        var query2 = "SELECT * FROM Friends WHERE friend1 = " + userId
+        con.query(query2, function(err3, result2, fields2){
+          if (!err3){
+            // //everything went ok
+            // //for now just log the result to see the format
+             console.log(result2)
+            // //go  through results and get username infor for each
+            changeToFriendArray(result2 , function(friendsArr){
+              console.log(friendsArr)
+              //decide whether you need to stringify the result before sending
+              response.setHeader('Access-Control-Allow-Origin', '*');
+                    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+              response.statusCode = 200;
+              response.send(friendsArr);
+            })
+            
+          }
+          else {
+            console.log(err3)
+            response.setHeader('Access-Control-Allow-Origin', '*');
+                  // Request methods you wish to allow
+                  response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+            response.statusCode = 404;
+            response.send("failed to return friends")
+          }
+        })
+      }
+      else {
+        console.log(err2);
+        response.setHeader('Access-Control-Allow-Origin', '*');
+              // Request methods you wish to allow
+              response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+        response.statusCode = 404;
+        response.send("failed");
+      }
+    })
+  })
 }
 
 app.post('/addfriends', addFriends);
 function addFriends(request, response){
-	//expect to get two usernames: current user and the friend added
-	var data = request.body;
-	var currentUser = data.currentUser;
-	var addedFriend = data.addedFriend;
+  //expect to get two usernames: current user and the friend added
+  var data = request.body;
+  var currentUser = data.currentUser;
+  var addedFriend = data.addedFriend;
 
-	//first check to see if they are already friends
+  //first check to see if they are already friends
 
-	//now get both of their ids
-	con.connect(function(err){
-		var query = "SELECT * FROM Users WHERE username = " + "'" + currentUser + "'";
-		con.query(query, function(err2, result, fields){
-			if (!err2){
-				userId1 = result[0].userId;
-				var query2 = "SELECT * FROM Users WHERE username = " + "'" + addedFriend + "'";
-				con.query(query2, function(err3, result2, fields2){
-					if (!err3){
-						userId2 = result2[0].userId;
-						//now you can insert new friendship into table
-						var query3 = "INSERT INTO Friends (friend1, friend2) VALUES (" + "'" + userId1 + "'," + "'" + userId2 + "'" + ");"
-						con.query(query3, function(err4, result3, fields3){
-							if (!err4){ //successful insertion
-								response.setHeader('Access-Control-Allow-Origin', '*');
-            					// Request methods you wish to allow
-            					response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-            					console.log("addedFriend successful");
-            					response.statusCode = 200;
-            					response.send("added friend successfully");
-							}
-							else {
-								response.setHeader('Access-Control-Allow-Origin', '*');
-            					// Request methods you wish to allow
-            					response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-            					response.statusCode = 404;
-            					console.log(err4);
-            					response.send("failed");
-							}
-						})
-					}
-					else {
-						response.setHeader('Access-Control-Allow-Origin', '*');
-            			// Request methods you wish to allow
-            			response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-						console.log(err3)
+  //now get both of their ids
+  con.connect(function(err){
+    var query = "SELECT * FROM Users WHERE username = " + "'" + currentUser + "'";
+    con.query(query, function(err2, result, fields){
+      if (!err2){
+        userId1 = result[0].userId;
+        var query2 = "SELECT * FROM Users WHERE username = " + "'" + addedFriend + "'";
+        con.query(query2, function(err3, result2, fields2){
+          if (!err3){
+            userId2 = result2[0].userId;
+            //now you can insert new friendship into table
+            var query3 = "INSERT INTO Friends (friend1, friend2) VALUES (" + "'" + userId1 + "'," + "'" + userId2 + "'" + ");"
+            con.query(query3, function(err4, result3, fields3){
+              if (!err4){ //successful insertion
+                response.setHeader('Access-Control-Allow-Origin', '*');
+                      // Request methods you wish to allow
+                      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+                      console.log("addedFriend successful");
+                      response.statusCode = 200;
+                      response.send("added friend successfully");
+              }
+              else {
+                response.setHeader('Access-Control-Allow-Origin', '*');
+                      // Request methods you wish to allow
+                      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+                      response.statusCode = 404;
+                      console.log(err4);
+                      response.send("failed");
+              }
+            })
+          }
+          else {
+            response.setHeader('Access-Control-Allow-Origin', '*');
+                  // Request methods you wish to allow
+                  response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+            console.log(err3)
             response.statusCode = 404;
-						response.send("failed")
-					}
-				})
-			}
-			else {
-				response.setHeader('Access-Control-Allow-Origin', '*');
+            response.send("failed")
+          }
+        })
+      }
+      else {
+        response.setHeader('Access-Control-Allow-Origin', '*');
         // Request methods you wish to allow
         response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-				console.log(err2);
+        console.log(err2);
         response.statusCode = 404;
-				response.send("failed");
-			}
-		})
-	})
+        response.send("failed");
+      }
+    })
+  })
 
 }
 
@@ -984,12 +1035,530 @@ function deleteFriend(request, response){
   })
 }
 
+/************************* Group Routes *****************************/
+app.post('/groups', createGroup);
+
+function createGroup(request, response){
+  var data = request.body;
+  var creator = data.creator;
+  var name = data.gname;
+  var description = data.descr;
+
+  var query1 = "INSERT INTO VGroups (gName, gDescription,creator) VALUES (" + "'" + name + "'," + "'" + description + "'," + "'" + creator + "');"
+  con.query(query1, function (err, result, fields) {
+    if(!err){
+      console.log("added group")
+
+      //add creator to this group 
+      var query2 = "INSERT INTO VGroupMembers (userId, groupName) VALUES (" + "'" + creator + "'," + "'" + name + "');"
+      con.query(query2, function (err2, result2, fields2) {
+        if(!err2){
+          console.log("added creator to group")
+          response.setHeader('Access-Control-Allow-Origin', '*');
+          // Request methods you wish to allow
+          response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+          response.statusCode = 200;
+          response.send("created group successfully");
+        }
+        else {
+          response.setHeader('Access-Control-Allow-Origin', '*');
+          // Request methods you wish to allow
+          response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+          console.log(err);
+          response.statusCode = 404;
+          response.send("failed");
+        }
+      })
+      
+    }
+    else {
+      console.log(err.code)
+      if(err.code == "ER_DUP_ENTRY") {
+        response.setHeader('Access-Control-Allow-Origin', '*');
+        // Request methods you wish to allow
+        response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+        console.log(err);
+        response.statusCode = 200;
+        response.send("duplicate group name");
+      }
+      else {
+        response.setHeader('Access-Control-Allow-Origin', '*');
+        // Request methods you wish to allow
+        response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+        console.log(err);
+        response.statusCode = 404;
+        response.send("failed");
+      }
+    }
+  })
+
+}
+
+app.get('/groups/all', getGroups)
+
+function getGroups(request,response){
+  var data = request.params
+  var query = "SELECT gName, gDescription, creator FROM VGroups";
+   con.query(query, function (err, result, fields) {
+        
+    if (!err){
+      console.log(result); //for now just log result to see format
+      changeGroupsCreators(result, function(groupsArr){
+        response.setHeader('Access-Control-Allow-Origin', '*');
+        response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+        response.statusCode = 200;
+        response.send(groupsArr);
+      })
+            
+    }
+    else {
+      console.log(err);
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      response.statusCode = 404;
+      response.send("failed");
+    }
+  });
+}
+
+
+app.post('/groups/members', joinGroup);
+
+function joinGroup(request, response){
+  var data = request.body;
+  //var user = data.username;
+  var user = data.userId
+  var group = data.group;
+
+  var query1 = "INSERT INTO VGroupMembers (userId, groupName) VALUES (" + "'" + user + "'," + "'" + group + "');"
+  con.query(query1, function (err, result, fields) {
+    if(!err){
+      console.log("joined group")
+      //add creator to this group 
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      // Request methods you wish to allow
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      response.statusCode = 200;
+      response.send("joined group successfully");
+    }
+    else {
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      // Request methods you wish to allow
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      console.log(err);
+      response.statusCode = 404;
+      response.send("failed");
+    }
+  })
+}
+
+
+app.post('/groups/members/leave', leaveGroup)
+
+function leaveGroup(request, response){
+  var data = request.body;
+  var userId = data.userId;
+  var groupname = data.groupname;
+//var query = "DELETE FROM Friends WHERE username = " + "'" + currentUser + "'";
+  //first get userId for both users
+  var query = "DELETE FROM VGroupMembers WHERE userId = " + "'" + userId + "'" + "AND groupName = " + "'" + groupname + "'";
+  con.query(query, function(err, result, fields){
+    if (!err){
+      console.log("removed from group")
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      // Request methods you wish to allow
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      response.statusCode = 200;
+      response.send("deleted group successfully");
+    }
+    else {
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      // Request methods you wish to allow
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      console.log(err4);
+      response.statusCode = 404;
+      response.send("failed");      
+    }
+  })
+    
+}
+
+
+app.get('/groups/:username', getGroupsofUser)
+
+function getGroupsofUser(request,response){
+  var data = request.params
+  var username = data.username
+
+  //first get userId
+  var query2 = "Select userId FROM Users WHERE username = " + "'" + username + "';";
+  con.query(query2, function(err2, result2, fields2){
+    if(!err2){
+      console.log("got userId")
+      console.log(result2)
+      console.log("now can get groups for user")
+      var query = "SELECT groupName FROM VGroupMembers WHERE userId = " + "'" + result2[0].userId + "';";
+      con.query(query, function (err, result, fields) {
+        if(!err){
+          console.log(result)
+          changeToGroupArray(result, function(groupsArr){
+            //add creator to this group 
+            response.setHeader('Access-Control-Allow-Origin', '*');
+            // Request methods you wish to allow
+            response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+            response.statusCode = 200;
+            response.send(groupsArr)
+          })
+        }
+        else {
+          response.setHeader('Access-Control-Allow-Origin', '*');
+          // Request methods you wish to allow
+          response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+          console.log(err);
+          response.statusCode = 404;
+          response.send("failed");
+        }
+      })
+
+    }
+    else {
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      // Request methods you wish to allow
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      console.log(err);
+      response.statusCode = 404;
+      response.send("failed");
+    }
+  })
+}
+
+app.get('/groups/members/:group', getAllGroupMembers)
+
+function getAllGroupMembers(request, response){
+  console.log("getting all group members")
+  var data = request.params
+  var group = data.group
+  console.log(group)
+
+  var query = "SELECT * FROM VGroupMembers WHERE groupName = " + "'" + group + "';";
+  console.log(query)
+  con.query(query, function (err, result, fields) {
+    if(!err){
+      console.log(result)
+      changeToGroupMemberArray(result, function(membersArr){
+        response.setHeader('Access-Control-Allow-Origin', '*');
+        // Request methods you wish to allow
+        response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+        response.statusCode = 200;
+        response.send(membersArr)
+      })
+      
+      
+    }
+    else {
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      // Request methods you wish to allow
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      console.log(err);
+      response.statusCode = 404;
+      response.send("failed");
+    }
+  })
+}
+
+app.get('/groups/members/:userId/:group', checkGroupMembers)
+
+function checkGroupMembers(request,response){
+  console.log("inside get group users")
+  var data = request.params
+  var userId = data.userId
+  console.log(userId)
+  var group = data.group
+
+  var query = "SELECT groupName FROM VGroupMembers WHERE userId = " + "'" + userId + "' AND groupName = " + "'" + group + "';";
+  con.query(query, function (err, result, fields) {
+    if(!err){
+      console.log("checked to see if user is in group")
+      console.log(result)
+      //add creator to this group 
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      // Request methods you wish to allow
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      response.statusCode = 200;
+      response.send(result)
+      
+    }
+    else {
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      // Request methods you wish to allow
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      console.log(err);
+      response.statusCode = 404;
+      response.send("failed");
+    }
+  })
+
+}
+
+
+app.get('/groups/details/:name', getGroupDets)
+
+function getGroupDets(request,response){
+  var data = request.params
+  var gName = data.name
+  var query = "SELECT * FROM VGroups WHERE gName = " + "'" + name + "'";
+   con.query(query, function (err, result, fields) {
+        
+    if (!err){
+      console.log(result); //for now just log result to see format
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      response.statusCode = 200;
+      response.send(result);
+            
+    }
+    else {
+      console.log(err);
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      response.statusCode = 404;
+      response.send("failed");
+    }
+  });
+}
+
+
+function changeToGroupMemberArray(result, callback){
+  console.log(result);
+  var groupMembers = [];
+  if (result.length == 0){
+    callback(groupMembers);
+  }
+  else {
+    for (let i = 0; i < result.length; i++) {
+      console.log("i: " + i);
+      var query = "SELECT * FROM Users WHERE userId = " + "'" + result[i].userId + "'";
+      con.query(query, function(err, result2, fields2){
+        if (!err){
+          console.log("result2 in change array")
+          console.log(result2)
+          //console.log(result2[i])
+          var name = result2[0].username
+          var imageurl = result2[0].profilePic
+        
+          if (imageurl == null){
+            imageurl = "none";
+          }
+          //eventually add photo
+          var groupsJson = {
+            "name" : name,
+            "image" : imageurl
+          }
+          console.log("about to push to array")
+          groupMembers.push(groupsJson)
+          console.log("done with for loop maybe");
+        
+          if (groupMembers.length == result.length){
+            callback(groupMembers);
+            console.log("about to return");
+            //return;
+          }
+              
+        }
+        else {
+          console.log("error getting group info");
+        }
+      })
+    }
+  }
+}
+
+function changeToGroupArray(result, callback){
+  console.log(result);
+  var groups = [];
+  if (result.length == 0){
+    callback(groups);
+  }
+  else {
+    for (let i = 0; i < result.length; i++) {
+    console.log("i: " + i);
+    var query = "SELECT * FROM VGroups WHERE gName = " + "'" + result[i].groupName + "'";
+    con.query(query, function(err, result2, fields2){
+      if (!err){
+        console.log("result2 in change array")
+        console.log(result2)
+        //need to get creator's name
+        var query2 = "Select username FROM Users WHERE userId = " + "'" + result2[0].creator + "';";
+        con.query(query2, function(err2, result3, fields3){
+          if(!err2){
+            var name = result2[0].gName
+            var descr = result2[0].gDescription
+            var creator = result3[0].username
+            //if (pic == null){
+              //pic = "none";
+            //}
+            //eventually add photo
+            var groupsJson = {
+              "name" : name,
+              "description" : descr,
+              "creator" : creator
+            }
+            console.log("about to push to array")
+            groups.push(groupsJson)
+            console.log("done with for loop maybe");
+          
+            if (groups.length == result.length){
+              callback(groups);
+              console.log("about to return");
+              //return;
+            }
+          }
+          else {
+            console.log("error getting username of creator")
+          }
+        })
+        
+              
+      }
+      else {
+        console.log("error getting group info");
+      }
+    })
+  }
+  }
+}
+
+function changeGroupsCreators(result, callback){
+  console.log(result);
+  var groups = [];
+  if (result.length == 0){
+    callback(groups);
+  }
+  else {
+    for (let i = 0; i < result.length; i++) {
+      console.log("i: " + i);
+      var query2 = "Select username FROM Users WHERE userId = " + "'" + result[0].creator + "';";
+        con.query(query2, function(err2, result3, fields3){
+          if(!err2){
+            var name = result[i].gName
+            var descr = result[i].gDescription
+            var creator = result3[0].username
+            //if (pic == null){
+              //pic = "none";
+            //}
+            //eventually add photo
+            var groupsJson = {
+              "name" : name,
+              "description" : descr,
+              "creator" : creator
+            }
+            console.log("about to push to array")
+            groups.push(groupsJson)
+            console.log("done with for loop maybe");
+          
+            if (groups.length == result.length){
+              callback(groups);
+              console.log("about to return");
+              //return;
+            }
+          }
+          else {
+            console.log("error getting username of creator")
+          }
+        })
+    }
+  }
+}
+
+/********************* Messaging Logic **********************/
+app.get('/groups/chat/:group', getGroupMessages)
+
+function getGroupMessages(request, response){
+  console.log("getting group messages")
+  var data = request.params
+  var group = data.group
+
+  var query = "SELECT sender, message, sentdate FROM Messages WHERE groupName = " + "'" + group + "';";
+  con.query(query, function (err, result, fields) {
+    if(!err){
+      console.log(result)
+
+      changeToMessageArray(result, function(messagesArr){
+        response.setHeader('Access-Control-Allow-Origin', '*');
+        // Request methods you wish to allow
+        response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+        response.statusCode = 200;
+        response.send(messagesArr)
+      })
+      
+      
+    }
+    else {
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      // Request methods you wish to allow
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      console.log(err);
+      response.statusCode = 404;
+      response.send("failed");
+    }
+  })
+}
+
+function changeToMessageArray(result, callback){
+  console.log(result);
+  var messages = [];
+  if (result.length == 0){
+    callback(messages);
+  }
+  else {
+    for (let i = 0; i < result.length; i++) {
+    console.log("i: " + i);
+    var query = "SELECT * FROM Users WHERE userId = " + "'" + result[i].sender + "'";
+    con.query(query, function(err, result2, fields2){
+      if (!err){
+        console.log("result2 in change array")
+        console.log(result2)
+        //console.log(result2[i])
+        var sender = result2[0].username
+        var senderImg = result2[0].profilePic
+        var message = result[i].message
+        var sentdate = result[i].sentdate
+        //if (pic == null){
+          //pic = "none";
+        //}
+        //eventually add photo
+        var messageJson = {
+          "sender" : sender,
+          "senderImg" : senderImg,
+          "message" : message,
+          "sentdate" : sentdate
+        }
+        console.log("about to push to array")
+        messages.push(messageJson)
+        console.log("done with for loop maybe");
+        
+        if (messages.length == result.length){
+          callback(messages);
+          console.log("about to return");
+          //return;
+        }
+              
+      }
+      else {
+        console.log("error getting group info");
+      }
+    })
+  }
+  }
+}
+
 /********************** VShoot Logic (Including Classes and Sockets) **************/
 
-//start vshoot logic
+
 //create a main socket channel for all users to connect 
 var socket = require('socket.io');
 var socketChannel = socket(server);
+//{transports: ['websocket']}
 //var socketChannel = socket(https);
 var allUsers = [];
 var currentvshoots = [];
@@ -1091,6 +1660,81 @@ socketChannel.sockets.on('connection', function(socket){
     
   });
 
+  //listen for new message
+  socket.on("newMessage", function(data){
+    console.log("new message received")
+    //var username = data.username
+    //var userImg = data.userImg
+    var userId = data.userId
+    console.log(userId)
+    var group = data.group
+    var message = data.message
+    var date = data.date
+
+    socketChannel.sockets.emit("newMessage", data)
+
+    var query1 = "INSERT INTO Messages (sender, message, groupName, sentdate) VALUES (" + "'" + userId + "'," + "'" + message + "','" + group + "'," + "'" + date + "');"
+    con.query(query1, function (err, result, fields) {
+      if(!err){
+        console.log("message added")
+      }
+      else {
+        console.log("error when adding message to db")
+        console.log(err);
+      }
+    })
+
+    //send notification
+
+    var query2 = "SELECT userId FROM VGroupMembers WHERE groupName = " + "'" + group + "'";
+    con.query(query2, function (err2, result2, fields2) {
+      if(!err2){
+        console.log("successfully got group members")
+        for (var i=0; i < result2.length; i++){
+          var query3 = "SELECT deviceToken FROM Users WHERE userId = " + "'" + result2[i].userId + "'";
+          con.query(query3, function (err3, result3, fields3) {
+            if(!err3){
+              console.log("got device token")
+              console.log(result3[0].deviceToken)
+              if (result3[0].deviceToken != null){
+                //let deviceToken = "9d736d956091bcaf94c112d6f77875160019ce2775959c9f3f71a9e69c7abed7";
+
+                let deviceToken = result3[0].deviceToken
+                // Prepare the notifications
+                let notification = new apn.Notification();
+                notification.expiry = Math.floor(Date.now() / 1000) + 24 * 3600; // will expire in 24 hours from now
+                //notification.badge = 2;
+                notification.title = "New Message in " + group
+                notification.body = message
+                notification.category = "New_Msg"
+                notification.sound = "ping.aiff";
+                //notification.alert = "New VShoot Request";
+                notification.payload = {'messageFrom': group};
+
+                // Replace this with your app bundle ID:
+                notification.topic = "com.thevshoot.vshootapp";
+
+                // Send the actual notification
+                apnProvider.send(notification, deviceToken).then( result => {
+                // Show the result of the send operation:
+                  console.log(result);
+                })
+              }
+            }
+            else {
+              console.log("error when adding message to db")
+              console.log(err3);
+            }
+          })
+        }
+      }
+      else {
+        console.log("error getting group members")
+        console.log(err2);
+      }
+    })
+  });
+
   //listen for app going to background
   socket.on("goingToBackground", function(username){
     //check to see if that user is currently in a vshoot
@@ -1145,6 +1789,7 @@ socketChannel.sockets.on('connection', function(socket){
                   var requesteeSocket;
                   var foundUser = false;
                   for (i=0; i < allUsers.length; i++){
+                    console.log(allUsers[i].username);
                     if (allUsers[i].username == receiver){
                       console.log(allUsers[i].username)
                       foundUser = true;
@@ -1216,24 +1861,24 @@ socketChannel.sockets.on('connection', function(socket){
 
                         if (foundUser){
                           //get the role of the receiver
-                          	var receiverRole;
-                          	if (requestorRole == "votographer"){
-                            	receiverRole = "vmodel";
-                          	}
-                          	else {
-                            	receiverRole = "votographer";
-                          	}
-                          	var id = currentvshoots.length;
-    						var vs = new Vshoot(id);
-    						currentvshoots.push(vs);
-    						//var vsId = currentvshoots.length - 1;
-    						//var vshooter = new Vshooter(socket, requestor, vs, requestorRole);
-    						vs.addVshooter(new Vshooter(socket, requestor, vs, requestorRole));
-                          	requesteeSocket.emit("newVSRequest", {
-                            	vshootId: vs.getID(),
-                            	vshootRequestor: requestor,
-                            	receiverRole: receiverRole
-                          	})
+                            var receiverRole;
+                            if (requestorRole == "votographer"){
+                              receiverRole = "vmodel";
+                            }
+                            else {
+                              receiverRole = "votographer";
+                            }
+                            var id = currentvshoots.length;
+                var vs = new Vshoot(id);
+                currentvshoots.push(vs);
+                //var vsId = currentvshoots.length - 1;
+                //var vshooter = new Vshooter(socket, requestor, vs, requestorRole);
+                vs.addVshooter(new Vshooter(socket, requestor, vs, requestorRole));
+                            requesteeSocket.emit("newVSRequest", {
+                              vshootId: vs.getID(),
+                              vshootRequestor: requestor,
+                              receiverRole: receiverRole
+                            })
                         }
                         else {
                           console.log("no user found")
@@ -1338,8 +1983,8 @@ socketChannel.sockets.on('connection', function(socket){
       }
       
       currentvshoots[vsIndex].endTime = endTimeStr
-    	currentvshoots.splice(vsIndex, 1);
-  	  
+      currentvshoots.splice(vsIndex, 1);
+      
     }
     else {
       socket.emit("VSRequestActionFailed", "It seems the vshoot has been cancelled.");
@@ -1383,37 +2028,37 @@ socketChannel.sockets.on('connection', function(socket){
       }
 
       //add vshoot to db
-	    var d = new Date();
-	    var endTimeStr = d.toUTCString();
-	    vshoot.endTime = endTimeStr;
-	    var startTime = vshoot.startTime;
-	    var votographerUN = vshoot.votographer.username;
-	    var vmodelUN = vshoot.vmodel.username;
+      var d = new Date();
+      var endTimeStr = d.toUTCString();
+      vshoot.endTime = endTimeStr;
+      var startTime = vshoot.startTime;
+      var votographerUN = vshoot.votographer.username;
+      var vmodelUN = vshoot.vmodel.username;
 
-	    con.connect(function(err){
-	      var query = "INSERT INTO VShoots (startTime, endTime, vmodel, votographer) VALUES (" + "'" + startTime + "'," + "'" + endTimeStr + "'," + "(SELECT userId FROM Users WHERE username = '" + vmodelUN + "')," + "(SELECT userId FROM Users WHERE username = '" + votographerUN + "')" + ")" ;
-	      con.query(query, function(err2, result, fields){
-	        if (!err2){
-	          	console.log("successfully added new vs");
-	          	//now delete vs from
-	          	//delete vshoot;
+      con.connect(function(err){
+        var query = "INSERT INTO VShoots (startTime, endTime, vmodel, votographer) VALUES (" + "'" + startTime + "'," + "'" + endTimeStr + "'," + "(SELECT userId FROM Users WHERE username = '" + vmodelUN + "')," + "(SELECT userId FROM Users WHERE username = '" + votographerUN + "')" + ")" ;
+        con.query(query, function(err2, result, fields){
+          if (!err2){
+              console.log("successfully added new vs");
+              //now delete vs from
+              //delete vshoot;
 
-      			vsIndex = findVShootIndex(vsId)
-      			currentvshoots[vsIndex].endTime = endTimeStr
-      			currentvshoots[vsIndex].vmodel.vshoot.endTime = endTimeStr
-      			currentvshoots[vsIndex].votographer.vshoot.endTime = endTimeStr
-      			 
-	        	if (vsIndex != null){
-    				  currentvshoots.splice(vsIndex, 1);
+            vsIndex = findVShootIndex(vsId)
+            currentvshoots[vsIndex].endTime = endTimeStr
+            currentvshoots[vsIndex].vmodel.vshoot.endTime = endTimeStr
+            currentvshoots[vsIndex].votographer.vshoot.endTime = endTimeStr
+             
+            if (vsIndex != null){
+              currentvshoots.splice(vsIndex, 1);
               console.log("currentvshoots number is " + currentvshoots.length)
-  				  }
-	          
-	        }
-	        else {
-	          console.log(err2)
-	        }
-	      })
-	    })
+            }
+            
+          }
+          else {
+            console.log(err2)
+          }
+        })
+      })
     }
 
     //remove take photo listener and cancelRequest listener
@@ -1475,35 +2120,35 @@ function Vshooter(socket, username, vshoot, role) { //only users that are curren
       console.log("im trying to take photo");
       console.log(self.vshoot.endTime)
       if(self.vshoot.endTime == null){
-      	flash = data.flash;
-      	console.log("printing vmodel for take photo")
-      	console.log(self.vshoot)
-      	console.log("printing vmodel")
-      	console.log(self.vshoot.vmodel)
-      	self.vshoot.takephoto(self.vshoot.vmodel, flash);
+        flash = data.flash;
+        console.log("printing vmodel for take photo")
+        console.log(self.vshoot)
+        console.log("printing vmodel")
+        console.log(self.vshoot.vmodel)
+        self.vshoot.takephoto(self.vshoot.vmodel, flash);
       }
       
     })
 
     this.socket.on("cancelRequest", function(data){
-    	if (self.vshoot.endTime == null){
-    		//remove from current vshoots
-      		var foundVshoot = false;
-      		var wantedVS;
-      		vshootId = self.vshoot.id
-      		console.log("current length of vs: " + currentvshoots.length);
-      		console.log("wantedVS: " + vshootId);
+      if (self.vshoot.endTime == null){
+        //remove from current vshoots
+          var foundVshoot = false;
+          var wantedVS;
+          vshootId = self.vshoot.id
+          console.log("current length of vs: " + currentvshoots.length);
+          console.log("wantedVS: " + vshootId);
 
-      		for (i=0; i < currentvshoots.length; i++){
-        		// console.log("currentvshoots[i].id: " + currentvshoots[i].id)
-        		// console.log()
-        		if (currentvshoots[i].id == vshootId){
-          		wantedVS = i;
-          		//foundVshoot = true;
-        		}
-      		}
+          for (i=0; i < currentvshoots.length; i++){
+            // console.log("currentvshoots[i].id: " + currentvshoots[i].id)
+            // console.log()
+            if (currentvshoots[i].id == vshootId){
+              wantedVS = i;
+              //foundVshoot = true;
+            }
+          }
 
-      		console.log("wantedVS: " + wantedVS);
+          console.log("wantedVS: " + wantedVS);
           var d = new Date();
           var endTimeStr = d.toUTCString();
           currentvshoots[wantedVS].endTime = endTimeStr
@@ -1513,15 +2158,15 @@ function Vshooter(socket, username, vshoot, role) { //only users that are curren
           if (currentvshoots[wantedVS].votographer != null){
             currentvshoots[wantedVS].votographer.vshoot.endTime = endTimeStr
           }
-      		currentvshoots.splice(wantedVS, 1);
-      		console.log(currentvshoots.length)
+          currentvshoots.splice(wantedVS, 1);
+          console.log(currentvshoots.length)
 
           //remove event listeners
           this.socket.off('takephoto')
           this.socket.off('cancelRequest')
           console.log("printing socket events after cancelRequest")
           console.log(this.socket.eventNames())
-    	}
+      }
       
     })
 
