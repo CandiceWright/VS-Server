@@ -1437,7 +1437,7 @@ function changeGroupsCreators(result, callback){
   else {
     for (let i = 0; i < result.length; i++) {
       console.log("i: " + i);
-      var query2 = "Select username FROM Users WHERE userId = " + "'" + result[0].creator + "';";
+      var query2 = "Select username FROM Users WHERE userId = " + "'" + result[i].creator + "';";
         con.query(query2, function(err2, result3, fields3){
           if(!err2){
             var name = result[i].gName
