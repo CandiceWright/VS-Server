@@ -579,50 +579,92 @@ function changeUsername(request, response){
   var data = request.body;
   var oldUN = data.currUsername;
   var newUN = data.newUsername;
-  var query = "UPDATE Users SET username = '" + newUN + "'" + "WHERE username = '" + oldUN + "'";
-
-
-  con.query(query, function(err, result, field){
-    if (!err){
-      var foundUser = false;
-      var index;
-      for (i=0; i < allUsers.length; i++){
-        console.log("'" + allUsers[i].username + "'")
-        console.log("'" + oldUN + "'" )
-        if (allUsers[i].username == oldUN){ //oldUN was username but what is username
-          console.log("found user")
-          foundUser = true;
-          index = i;
+  var foundUser = false;
+  var index;
+  for (i=0; i < allUsers.length; i++){
+    console.log("'" + allUsers[i].username + "'")
+    console.log("'" + oldUN + "'" )
+    if (allUsers[i].username == oldUN){ //oldUN was username but what is username
+      console.log("found user")
+      foundUser = true;
+      index = i;
           //break;
-        }
-      }
-      if (foundUser){
+    }
+  }
+  if (foundUser){
+    var query = "UPDATE Users SET username = '" + newUN + "'" + "WHERE username = '" + oldUN + "'";
+    con.query(query, function(err, result, field){
+      if (!err){
         console.log("changing username in server array")
         allUsers[index].username = newUN
-        console.log(result); //for now just log result to see format
+        //console.log(result); //for now just log result to see format
         response.setHeader('Access-Control-Allow-Origin', '*');
         response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
         response.statusCode = 200;
         response.send("username updated successfully");
       }
       else {
-        console.log("couldnt find user")
+        console.log("username taken")
         console.log(err);
         response.setHeader('Access-Control-Allow-Origin', '*');
         response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-        response.statusCode = 404;
-        response.send("username could not be updated")
+        response.statusCode = 200;
+        response.send("username taken");
       }
-    }
-    else {
-      console.log("username taken")
-      console.log(err);
-      response.setHeader('Access-Control-Allow-Origin', '*');
-      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-      response.statusCode = 200;
-      response.send("username taken");
-    }
-  })
+    })
+  }
+  else {
+    console.log("couldnt find user")
+    console.log(err);
+    response.setHeader('Access-Control-Allow-Origin', '*');
+    response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    response.statusCode = 404;
+    response.send("username could not be updated")
+  }
+  // var query = "UPDATE Users SET username = '" + newUN + "'" + "WHERE username = '" + oldUN + "'";
+
+
+  // con.query(query, function(err, result, field){
+  //   if (!err){
+  //     // var foundUser = false;
+  //     // var index;
+  //     // for (i=0; i < allUsers.length; i++){
+  //     //   console.log("'" + allUsers[i].username + "'")
+  //     //   console.log("'" + oldUN + "'" )
+  //     //   if (allUsers[i].username == oldUN){ //oldUN was username but what is username
+  //     //     console.log("found user")
+  //     //     foundUser = true;
+  //     //     index = i;
+  //     //     //break;
+  //     //   }
+  //     // }
+  //     // if (foundUser){
+  //     //   console.log("changing username in server array")
+  //     //   allUsers[index].username = newUN
+  //     //   console.log(result); //for now just log result to see format
+  //     //   response.setHeader('Access-Control-Allow-Origin', '*');
+  //     //   response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  //     //   response.statusCode = 200;
+  //     //   response.send("username updated successfully");
+  //     // }
+  //     else {
+  //       console.log("couldnt find user")
+  //       console.log(err);
+  //       response.setHeader('Access-Control-Allow-Origin', '*');
+  //       response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  //       response.statusCode = 404;
+  //       response.send("username could not be updated")
+  //     }
+  //   }
+  //   else {
+  //     console.log("username taken")
+  //     console.log(err);
+  //     response.setHeader('Access-Control-Allow-Origin', '*');
+  //     response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  //     response.statusCode = 200;
+  //     response.send("username taken");
+  //   }
+  // })
 
 }
 
