@@ -1550,6 +1550,33 @@ function changeToMessageArray(result, callback){
   }
 }
 
+/********************** In App Purchases *****************************/
+
+app.post('/vshoots/purchases', newPurchase);
+function newPurchase(request, response){
+  var data = request.body;
+  //var user = data.username;
+  var username = data.username
+  var query = "UPDATE Users SET vspurchase = 'true' WHERE username = '" + username + "'";
+
+  con.query(query, function(err, result, field){
+    if (!err){
+      console.log(result); //for now just log result to see format
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      response.statusCode = 200;
+      response.send("vspurchase added successfully");
+    }
+    else {
+      console.log(err);
+      response.setHeader('Access-Control-Allow-Origin', '*');
+      response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+      response.statusCode = 404;
+      response.send("vspurchase could not bee added");
+    }
+  })
+}
+
 /********************** VShoot Logic (Including Classes and Sockets) **************/
 
 
