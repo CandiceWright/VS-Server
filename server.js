@@ -1344,8 +1344,8 @@ function changeToGroupMemberArray(result, callback){
           var name = result2[0].username
           var imageurl = result2[0].profilePic
         
-          if (imageurl == null){
-            imageurl = "none";
+          if (imageurl == "none"){
+            imageurl = "no profile pic";
           }
           //eventually add photo
           var groupsJson = {
@@ -2067,33 +2067,34 @@ socketChannel.sockets.on('connection', function(socket){
               console.log("successfully added new vs");
               //now delete vs from
               //delete vshoot;
-
-            vsIndex = findVShootIndex(vsId)
-            currentvshoots[vsIndex].endTime = endTimeStr
-            currentvshoots[vsIndex].vmodel.vshoot.endTime = endTimeStr
-            currentvshoots[vsIndex].votographer.vshoot.endTime = endTimeStr
-             
-            if (vsIndex != null){
-              currentvshoots.splice(vsIndex, 1);
-              console.log("currentvshoots number is " + currentvshoots.length)
-            }
-            
           }
           else {
             console.log(err2)
           }
         })
       })
+
+      vsIndex = findVShootIndex(vsId)
+             
+      if (vsIndex != null){
+        currentvshoots[vsIndex].endTime = endTimeStr
+        currentvshoots[vsIndex].vmodel.vshoot.endTime = endTimeStr
+        currentvshoots[vsIndex].votographer.vshoot.endTime = endTimeStr
+        currentvshoots.splice(vsIndex, 1);
+        console.log("currentvshoots number is " + currentvshoots.length)
+      }
+
+      vshoot.votographer.socket.removeAllListeners('takephoto')
+      vshoot.vmodel.socket.removeAllListeners('takephoto')
+      vshoot.votographer.socket.removeAllListeners('cancelRequest')
+      vshoot.vmodel.socket.removeAllListeners('cancelRequest')
+      console.log("printing socket events after ending shoot for vmodel")
+      console.log(vshoot.vmodel.socket.eventNames())
+      console.log("printing socket events after ending shoot for vmodel")
+      console.log(vshoot.votographer.socket.eventNames())
     }
-
-    //remove take photo listener and cancelRequest listener
-    socket.removeAllListeners('takephoto')
-    socket.removeAllListeners('cancelRequest')
-    console.log("printing socket events after ending shoot")
-    console.log(socket.eventNames())
-
-
   })
+
 });
 
 
