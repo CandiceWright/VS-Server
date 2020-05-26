@@ -11,6 +11,9 @@ function listen(){
   console.log("listening..."); //server waiting for connections
 }
 
+//server attributes
+var allUsers = [];
+
 //database setup
 var mysqldb = require('mysql');
 var bcrypt = require('bcrypt');
@@ -1585,7 +1588,6 @@ var socket = require('socket.io');
 var socketChannel = socket(server);
 //{transports: ['websocket']}
 //var socketChannel = socket(https);
-var allUsers = [];
 var currentvshoots = [];
 var waitingForUsers = []; //a list of usernames that are apart of a vshoot that has been canceled by other user. waiting for them to enter back into app to notify them
 
@@ -1603,23 +1605,34 @@ function generateAccessToken(username, roomName, callback){
 }
 
 //listen for new connections on this socket
-socketChannel.sockets.on('connection', function(socket){
+// socketChannel.sockets.on('connection', function(socket){
+socketChannel.on('connection', function(socket){
   console.log("new connection");
   console.log(socket.id);
   socket.emit("connected")
-  //socket.emit("new connection");
-  //socket.emit("successfully connected");
-  for (i=0; i < allUsers.length; i++){
-    if (allUsers[i].socket.id == socket.id){
-      console.log("updating socket");
-      allUsers[i].socket = socket;
-    }
-  }
-  socket.on('disconnect', function(socket){
-    console.log("disconnecting")
+
+  // for (i=0; i < allUsers.length; i++){
+  //   if (allUsers[i].socket.id == socket.id){
+  //     console.log("updating socket");
+  //     allUsers[i].socket = socket;
+  //   }
+  // }
+  socket.on('connect', () => {
+    print("connect event received at line 1621")
+  });
+  socket.on('disconnect', function(reason){ //first check reason (could be io server disconnect or io client disconnect)
+    console.log("disconnecting because of " + reason)
+    // socket.removeAllListeners()
+    // var array = socket.eventNames()
+    // console.log("num events on socket is " + array.length)
+    // console.log(socket.eventNames())
+    // socket.disconnect(true)
   })
+  //just to store socket reference
   socket.on("join", function(username){ //when this socket emits a new user event, do the following 
     console.log("storing a new user with username " + username + "and socket " + socket.id);
+    
+    //you shouls never actually update a socket unless it was an unexpected disconnect, but the socket will still be same
     var exists = false;
     var index;
     for (i=0; i < allUsers.length; i++){
@@ -1678,6 +1691,8 @@ socketChannel.sockets.on('connection', function(socket){
     if (!exists){
       var newUser = new User(username, socket);
       allUsers.push(newUser);
+      console.log("added a new user to online list")
+      console.log(allUsers)
     }
 
     console.log("printing listen count for join")
@@ -1696,7 +1711,8 @@ socketChannel.sockets.on('connection', function(socket){
     var message = data.message
     var date = data.date
 
-    socketChannel.sockets.emit("newMessage", data)
+    //socketChannel.sockets.emit("newMessage", data)
+    socketChannel.emit("newMessage", data)
 
     var query1 = "INSERT INTO Messages (sender, message, groupName, sentdate) VALUES (" + "'" + userId + "'," + "'" + message + "','" + group + "'," + "'" + date + "');"
     con.query(query1, function (err, result, fields) {
@@ -1777,6 +1793,20 @@ socketChannel.sockets.on('connection', function(socket){
         //break;
       }
     }
+
+    var exists = false;
+    var index;
+    for (i=0; i < allUsers.length; i++){
+      if (allUsers[i].username == username){
+        exists = true;
+        index = i;
+      }
+    }
+    if (exists){
+      console.log("user is going to background so I am removing from allUsers list")
+      allUsers.splice(index, 1);
+    }
+
   })
 
   //new vs request 
@@ -2156,6 +2186,19 @@ function Vshooter(socket, username, vshoot, role) { //only users that are curren
       
     })
 
+    this.socket.on("changeZoom", function(data) {
+      console.log("Need to update zoom to " + data.zoomFactor);
+      if(self.vshoot.endTime == null){
+        zoom = data.zoomFactor;
+        console.log("printing vmodel for take photo")
+        console.log(self.vshoot)
+        console.log("printing vmodel")
+        console.log(self.vshoot.vmodel)
+        self.vshoot.changeZoom(self.vshoot.vmodel, zoom);
+      }
+      
+    })
+
     this.socket.on("cancelRequest", function(data){
       if (self.vshoot.endTime == null){
         //remove from current vshoots
@@ -2239,6 +2282,15 @@ Vshoot.prototype.takephoto = function(vmodel, flash) {
     console.log("sending instruction to take photo")
     socket.emit("takephoto", {
       flashSetting: flash
+    });
+}
+
+Vshoot.prototype.changeZoom = function(vmodel, zoomFactor) {
+    var vshoot = this;
+    var socket = vmodel.socket;
+    console.log("sending instruction to zoom")
+    socket.emit("changeZoom", {
+      zoomSetting: zoomFactor
     });
 }
 
