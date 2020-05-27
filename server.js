@@ -1,19 +1,49 @@
 //server setup 
-var express = require('express');
-var app = express(); 
-var server = require('http').Server(app);
+// var express = require('express');
+// var app = express(); 
+// var server = require('http').Server(app);
 
-var bodyParser = require('body-parser');
-app.use(bodyParser.json());
-var port = process.env.PORT || 7343;
+// var bodyParser = require('body-parser');
+// app.use(bodyParser.json());
+// var port = process.env.PORT || 7343;
 
-//var server = app.listen(7343, listen); 
-//server.listen(port, listen);
-server.listen(port, listen);
+// //var server = app.listen(7343, listen); 
+// //server.listen(port, listen);
+// server.listen(port, listen);
 
-function listen(){
-  console.log("listening on " + server.address().port); //server waiting for connections
-}
+// function listen(){
+//   console.log("listening on " + server.address().port); //server waiting for connections
+//}
+
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
+const express = require('express');
+
+const app = express();
+
+// Certificate
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/serve-thevshoot.com/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/yourdomain.com/fullchain.pem', 'utf8');
+
+const credentials = {
+  key: privateKey,
+  cert: certificate
+};
+
+// Starting both http & https servers
+const httpServer = http.createServer(app);
+const httpsServer = https.createServer(credentials, app);
+
+httpServer.listen(7342, () => {
+  console.log('HTTP Server running on port 7342');
+});
+
+httpsServer.listen(7343, () => {
+  console.log('HTTPS Server running on port 7343');
+});
+
+
 
 //server attributes
 var allUsers = [];
@@ -1589,7 +1619,7 @@ function newPurchase(request, response){
 
 //create a main socket channel for all users to connect 
 var socket = require('socket.io');
-var socketChannel = socket(server);
+var socketChannel = socket(httpsServer, {secure: true});
 //{transports: ['websocket']}
 //var socketChannel = socket(https);
 var currentvshoots = [];
