@@ -24,7 +24,7 @@ const app = express();
 
 // Certificate
 const privateKey = fs.readFileSync('/etc/letsencrypt/live/serve-thevshoot.com/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('/etc/letsencrypt/live/yourdomain.com/fullchain.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/serve-thevshoot.com/fullchain.pem', 'utf8');
 
 const credentials = {
   key: privateKey,
