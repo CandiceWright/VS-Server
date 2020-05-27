@@ -1,11 +1,15 @@
 //server setup 
 var express = require('express');
 var app = express(); 
+var server = require('http').Server(app);
 
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
-// var port = process.env.PORT || 8081;
-var server = app.listen(7343, listen); 
+var port = process.env.PORT || 7343;
+
+//var server = app.listen(7343, listen); 
+//server.listen(port, listen);
+server.listen(port, listen);
 
 function listen(){
   console.log("listening..."); //server waiting for connections
