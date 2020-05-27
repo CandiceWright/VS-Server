@@ -12,7 +12,7 @@ var port = process.env.PORT || 7343;
 server.listen(port, listen);
 
 function listen(){
-  console.log("listening..."); //server waiting for connections
+  console.log("listening on " + server.address().port); //server waiting for connections
 }
 
 //server attributes
