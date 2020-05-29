@@ -12,15 +12,14 @@
 //   console.log("listening on " + server.address().port); //server waiting for connections
 //}
 
-var bodyParser = require('body-parser');
-app.use(bodyParser.json());
-
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
 const express = require('express');
 
 const app = express();
+var bodyParser = require('body-parser');
+app.use(bodyParser.json());
 
 // Certificate
 const privateKey = fs.readFileSync('/etc/letsencrypt/live/serve-thevshoot.com/privkey.pem', 'utf8');
