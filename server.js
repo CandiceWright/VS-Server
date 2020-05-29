@@ -2,9 +2,6 @@
 // var express = require('express');
 // var app = express(); 
 // var server = require('http').Server(app);
-
-// var bodyParser = require('body-parser');
-// app.use(bodyParser.json());
 // var port = process.env.PORT || 7343;
 
 // //var server = app.listen(7343, listen); 
@@ -14,6 +11,9 @@
 // function listen(){
 //   console.log("listening on " + server.address().port); //server waiting for connections
 //}
+
+var bodyParser = require('body-parser');
+app.use(bodyParser.json());
 
 const fs = require('fs');
 const http = require('http');
@@ -232,7 +232,7 @@ function signUp(request, response){
 app.post('/login', validateLogin);
 function validateLogin(request, response){
   //first check if they are logged in on another device
-    
+    console.log(request)
     var data = request.body;
     var username = data.username;
     console.log(username);
