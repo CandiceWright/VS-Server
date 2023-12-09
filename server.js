@@ -1,17 +1,3 @@
-//server setup 
-// var express = require('express');
-// var app = express(); 
-// var server = require('http').Server(app);
-// var port = process.env.PORT || 7343;
-
-// //var server = app.listen(7343, listen); 
-// //server.listen(port, listen);
-// server.listen(port, listen);
-
-// function listen(){
-//   console.log("listening on " + server.address().port); //server waiting for connections
-//}
-
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
@@ -22,8 +8,8 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
 // Certificate
-const privateKey = fs.readFileSync('/etc/letsencrypt/live/serve-thevshoot.com/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('/etc/letsencrypt/live/serve-thevshoot.com/fullchain.pem', 'utf8');
+const privateKey = fs.readFileSync('', 'utf8');
+const certificate = fs.readFileSync('', 'utf8');
 
 const credentials = {
   key: privateKey,
@@ -55,7 +41,7 @@ var bcrypt = require('bcrypt');
 var db_config = {
   host: "vshootdb.cnubl3lw5gjo.us-west-2.rds.amazonaws.com",
   user: "root",
-  password: "4912bU!L9",
+  password: "",
   database: "vshootDB",
   charset : 'utf8mb4_unicode_ci'
 }
@@ -90,7 +76,6 @@ const apn = require('apn');
 let options = {
   token: {
     key: "cert_notifications.p8",
-    // Replace keyID and teamID with the values you've previously saved.
     keyId: "D8AAX3DVD6",
     teamId: "KVWT85GL72"
   },
@@ -106,15 +91,11 @@ let apnProvider = new apn.Provider(options);
 //for sending mail
 var nodemailer = require('nodemailer');
 
-//video setup
-//const oldSecret = 'vC2mfB4NMXhIJFD6ChElrz0QJAsszzke'
-//const old sid = 'SK2c96f8cec4481c864a42db2cf8cdfca9'
-
-const authToken = 'b6b5a782e16b67b5fefde5724aedd46d';
-//var accountSid = 'SK39b3a4c5eb32b1fc71eccb794c913151';
-const accountSid = 'AC009c1700c99bed47dccb38ba735672a8';
-const apiSecret = 'cTXJ5TkdGlcLUMXJgyzchGQBjFlORdLb';
-const apiKey = 'SK39b3a4c5eb32b1fc71eccb794c913151';
+const authToken = '';
+//var accountSid = '';
+const accountSid = '';
+const apiSecret = '';
+const apiKey = '';
 
 const client = require('twilio')(accountSid, authToken);
 var AccessToken = require('twilio').jwt.AccessToken;
